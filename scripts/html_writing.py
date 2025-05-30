@@ -116,17 +116,9 @@ def get_span_blocks(bs_obj: Bs, text1: list, text2: list, block_size: int) -> li
 def papers_comparison(save_dir: str, ind: int, text1: list, text2: list, filenames: tuple, block_size: int) -> None:
     """Write to HTML file texts that have been compared with highlighted similar blocks"""
 
-    try:
-        with importlib.resources.path("scripts", "template.html") as template_path:
-            comp_path = path.join(save_dir, f"{ind}.html")
-            copyfile(template_path, comp_path)
-    except ModuleNotFoundError:
-        # Fallback for local development
-        template_path_local = path.join("template.html")
-        comp_path = path.join(save_dir, str(ind) + ".html")
-
-        # Copy the template to the save directory under a new name
-        copy(template_path_local, comp_path)
+    with importlib.resources.path("scripts", "template.html") as template_path:
+        comp_path = path.join(save_dir, f"{ind}.html")
+        copyfile(template_path, comp_path)
 
     with open(comp_path, encoding="utf-8") as html:
         soup = Bs(html, "html.parser")

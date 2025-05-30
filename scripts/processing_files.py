@@ -4,7 +4,6 @@ import re
 import zipfile
 from os import path
 
-import slate3k as slate
 import pytesseract
 from pdf2image import convert_from_path
 from odf import text, teletype
@@ -41,29 +40,30 @@ def file_extension_call(file: str) -> list:
 
 
 def get_words_from_pdf_file(pdf_path: str) -> list:
-    """Return list of words from pdf file at specified path using pdfminer.six."""
+    """
+    Return list of words from a PDF file at the specified path.
+    Attempts to extract text using pdfminer.six. If the extracted text is too short
+    or empty (e.g., for image-based PDFs), it falls back to OCR using pytesseract.
+    """
 
-    # Extract text from the PDF file using pdfminer
-    extracted_text = extract_text(pdf_path)
+    # Attempt to extract text using pdfminer.six
+    extracted_text_pdfminer = extract_text(pdf_path)
+    cleaned_text_pdfminer = re.sub(r"\s+", " ", extracted_text_pdfminer)
+    cleaned_text_pdfminer = re.sub(r"<(.|\n)*?>", "", cleaned_text_pdfminer) # Basic cleaning
+    cleaned_text_pdfminer = cleaned_text_pdfminer.replace(" ", " ").strip()
 
-    # Clean up the extracted text
-    cleaned_text = re.sub(r"\s+", " ", extracted_text)
-    cleaned_text = re.sub(r"<(.|\n)*?>", "", cleaned_text)
+    if len(cleaned_text_pdfminer) > 50: # Check if pdfminer text is substantial
+        return re.findall(r"\w+", cleaned_text_pdfminer.lower())
 
-    # Convert the pdfs into images
+    # Fallback to OCR if pdfminer.six text is not substantial
     pages = convert_from_path(pdf_path, 300)
-
-    extracted_text = ''
-
-    # Iterate over every page
+    ocr_text = ''
     for page in pages:
-        # Extract the tex from the current page using OCR
-        text = pytesseract.image_to_string(page, lang='eng')
+        text_from_page = pytesseract.image_to_string(page, lang='eng')
+        ocr_text += text_from_page + " " # Add space between page texts
 
-        # Concat the extracted text
-        extracted_text += text
-
-    return extracted_text.replace("\xa0", " ").strip().split()
+    ocr_text = ocr_text.replace(" ", " ").strip()
+    return re.findall(r"\w+", ocr_text.lower())
 
 
 def get_words_from_txt_file(txt_path: str) -> list:

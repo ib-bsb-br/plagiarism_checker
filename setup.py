@@ -14,11 +14,11 @@ setup(
         "beautifulsoup4==4.10.0",
         "nltk==3.6.6",
         "odfpy==1.4.1",
-        "pdfplumber==0.5.28",
-        "slate3k==0.5.3",
         "tabulate==0.8.9",
         "tqdm==4.66.3",
         "pdfminer.six==20200517",
+        "pytesseract==0.3.10",
+        "pdf2image==1.17.0",
     ],
     extras_require={
         "lint": ["pylint==3.0.2", "mypy==1.7.1", "flake8==6.1.0", "black==24.3.0", "types-tabulate"],
