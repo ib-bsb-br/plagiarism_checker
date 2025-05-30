@@ -5,6 +5,7 @@ It gets ordered positions of matching blocks in text.
 It returns colors depending on the similarity score.
 
 """
+
 import difflib
 from operator import itemgetter
 from typing import List, Tuple
@@ -63,7 +64,7 @@ def writing_results(dir_name: str) -> str:
     """Create new directory for results in current working directory"""
 
     curr_directory = path.dirname(getcwd())
-    final_directory = path.join(curr_directory, r"results\\" + dir_name)
+    final_directory = path.join(curr_directory, r"results/" + dir_name)
     if not path.exists(final_directory):
         makedirs(final_directory)
 
@@ -73,11 +74,11 @@ def writing_results(dir_name: str) -> str:
 def get_color_from_similarity(similarity_score: float) -> str:
     """Return css style according to similarity score"""
 
-    if float(similarity_score) > 15:
+    if similarity_score > 15:
         return "#990033; font-weight: bold"
-    if float(similarity_score) > 10:
+    if similarity_score > 10:
         return "#ff6600"
-    if float(similarity_score) > 5:
+    if similarity_score > 5:
         return "#ffcc00"
 
     return "green"

@@ -6,21 +6,23 @@ It compares two text files
 It inserts comparison results in corresponding html files
 
 """
+
 from os import fsync, rename, path
 from random import randint
-from shutil import copy
+from shutil import copyfile, copy
 from typing import Any, List
 
 from bs4 import BeautifulSoup as Bs
+import importlib.resources
 from tabulate import tabulate
 
-from html_utils import (
+from scripts.html_utils import (
     get_color_from_similarity,
     get_real_matching_blocks,
     blocks_list_to_strings_list,
     get_ordered_blocks_positions,
 )
-from utils import is_float
+from scripts.utils import is_float
 
 
 def add_links_to_html_table(html_path: str) -> None:
@@ -42,7 +44,7 @@ def add_links_to_html_table(html_path: str) -> None:
                     "a",
                     href="file:///" + html_path.replace("_results", str(file_ind)),
                     target="_blank",
-                    style="color:" + get_color_from_similarity(td_tag.text),
+                    style="color:" + get_color_from_similarity(float(td_tag.text)),
                 )
 
                 td_tag.string.wrap(tmp)  # We wrap the td string between the hyperlink
@@ -114,14 +116,14 @@ def get_span_blocks(bs_obj: Bs, text1: list, text2: list, block_size: int) -> li
 def papers_comparison(save_dir: str, ind: int, text1: list, text2: list, filenames: tuple, block_size: int) -> None:
     """Write to HTML file texts that have been compared with highlighted similar blocks"""
 
-    copy(path.join("..", "templates", "template.html"), save_dir)  # Copy comparison template to curr dir
-    comp_path = path.join(save_dir, str(ind) + ".html")
-    rename(path.join(save_dir, "template.html"), comp_path)
+    with importlib.resources.path("scripts", "template.html") as template_path:
+        comp_path = path.join(save_dir, f"{ind}.html")
+        copyfile(template_path, comp_path)
 
     with open(comp_path, encoding="utf-8") as html:
         soup = Bs(html, "html.parser")
         res = get_span_blocks(soup, text1, text2, block_size)
-        blocks = soup.findAll(attrs={"class": "block"})
+        blocks = [soup.find(id="leftContent"), soup.find(id="rightContent")]
 
         # Append filename tags and span tags to html
         for i, filename in enumerate(filenames):
@@ -131,6 +133,7 @@ def papers_comparison(save_dir: str, ind: int, text1: list, text2: list, filenam
             for tag in res[i]:
                 blocks[i].append(tag)
 
+    # Write the modified content back to the file
     with open(comp_path, "wb") as f_output:
         f_output.write(soup.prettify("utf-8"))
 

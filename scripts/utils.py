@@ -6,6 +6,7 @@ It waits for file creation
 It can lemmatize, remove stop words, remove numbers for text processing
 
 """
+
 import argparse
 from os import path, listdir
 from time import sleep
@@ -49,24 +50,6 @@ def is_float(value: Any) -> bool:
         return float(value) != -1
     except ValueError:
         return False
-
-
-def get_student_names(main_path):
-    """
-    Extracts student names from the directory names within the specified main path.
-
-    This function assumes that each sub-directory within the main path represents a student and
-    that the student's name is the first part of the sub-directory name, delimited by an underscore.
-
-    Args:
-    main_path (str): The path of the main directory containing student sub-directories.
-
-    Returns:
-    list: A list of student names extracted from the sub-directory names.
-    """
-    sub_directories = [name for name in listdir(main_path) if path.isdir(path.join(main_path, name))]
-
-    return [title.split("_")[0] for title in sub_directories]
 
 
 def pretty_table(scores: list, names: list) -> None:
